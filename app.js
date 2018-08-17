@@ -1,10 +1,18 @@
 const bleno = require('bleno')
+const wpa_supplicant = require('wireless-tools/wpa_supplicant')
 
 const name = 'Kegmo'
 const service_uuid = '1b0abac5-c8e1-49ac-a498-8fd9b89de591'
 const ssid_uuid = '68d97c21-bc5a-40e9-b2e6-51424abd'
 const passphrase_uuid = '9054fda8-f6d2-4bd8-bed3-e0f7d32ccc2f'
 const response_uuid = '010796dd-cb22-4dda-bb4c-ca796cff0d4e'
+
+var options = {
+  interface: 'wlan0',
+  ssid: 'ATTiX9Btxi',
+  passphrase: 'ih+8??vf7p2q',
+  driver: 'brcmfmac'
+}
 
 // Begin advertising our BLE address
 bleno.on('stateChange', state => {
@@ -56,6 +64,7 @@ bleno.on('advertisingStart', error => {
             },
             onWriteRequest: (data, offset, withoutResponse, callback) => {
               this.value = data
+              // options.ssid = data
               console.log(`Write request: value = ${this.value.toString('utf-8')}`)
               callback(this.RESULT_SUCCESS)
             }
@@ -73,8 +82,16 @@ bleno.on('advertisingStart', error => {
             },
             onWriteRequest: (data, offset, withoutResponse, callback) => {
               this.value = data
+              // options.passphrase = data
               console.log(`Write request: value = ${this.value.toString('utf-8')}`)
               callback(this.RESULT_SUCCESS)
+              wpa_supplicant.enable(options, (err) => {
+                if (err) {
+                  console.log(err)
+                } else {
+                  console.log(`Connected to ${options.ssid}`)
+                }
+              })
             }
           })
         ]
